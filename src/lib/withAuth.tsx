@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-export function withAuth<T = {}>(Component: React.ComponentType<T>) {
+export function withAuth<T extends object>(Component: React.ComponentType<T>) {
   return function AuthenticatedComponent(props: T) {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,24 +15,22 @@ export function withAuth<T = {}>(Component: React.ComponentType<T>) {
         const { data } = await supabase.auth.getSession();
 
         if (!data.session) {
-          // Redireciona para a página de login se não houver sessão
           router.push("/login");
         } else {
-          setIsAuthenticated(true); // Define como autenticado
+          setIsAuthenticated(true);
         }
-        setIsLoading(false); // Finaliza o estado de carregamento
+        setIsLoading(false);
       };
 
       checkSession();
     }, [router]);
 
-    // Exibe um estado de carregamento enquanto verifica a sessão
     if (isLoading) {
       return <p>Loading...</p>;
     }
 
     if (!isAuthenticated) {
-      return null; // Garante que nada seja renderizado se não autenticado
+      return null;
     }
 
     return <Component {...props} />;
